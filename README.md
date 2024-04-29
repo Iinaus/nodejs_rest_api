@@ -22,7 +22,7 @@ Make sure to install these dependencies before running the project to ensure smo
 
 ### Dev setup step-by-step
 
-1. Create `.env` in project root and add API KEY to the file `JWT_SECRET=XXXXXXXXXXXX`
+1. Create `.env` in project root and add JWT SECRET to the file `JWT_SECRET=XXXXXXXXXXXX`
 2. Install dependencies with command `npm install`
 3. Run the project from the with command `npm run dev`
 
