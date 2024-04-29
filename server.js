@@ -171,9 +171,103 @@ router.delete('/user/:id', (req, res) => {
 
         res.send('Käyttäjätili poistettu onnistuneesti')
 
-    })
+    })    
+})
 
+// Rajapinnan laajennus alkaa tästä
+
+router.post('/store', authenticate, adminOnly, async (req, res) => {
+
+    const {name, address} = req.body
+
+    if(!name || !address ){
+        return res.status(400).send('Tarkista tiedot.')
+    }
     
+    const stmt = db.prepare("INSERT INTO stores VALUES (NULL, ?, ?)")
+    
+    stmt.run(name, address, (err) => {
+
+        if(err){
+            //Ei tehdä tuotantoympäristössä, mutta kehitysympäristössä auttaa virheen käsittelyssä
+            return res.status(400).json({
+                error: err
+            })
+
+            /*return res.status(400).json({
+                error: "Kokeile toista käyttäjänimeä"
+            })*/
+        }
+
+        res.status(201).send('Kauppa luotu onnistuneesti')  
+    })       
+})
+
+router.get('/store', (req, res) => {
+
+    db.all('SELECT * FROM stores', [], (err, rows) => {
+
+        if(err) {
+            return res.status(404).send('Stores not found')
+        }
+
+        res.send(JSON.stringify(rows))
+    })
+})
+
+router.get('/store/:id', (req, res) => {
+    const id = req.params.id
+
+    db.get('SELECT * FROM stores WHERE id = ?', [id], (err,row) => {
+
+        if(err) {
+            return res.status(404).send('Store not found')
+        } 
+
+        if(!row) {
+            return res.status(404).send('Store not found')
+        }
+        
+        res.send(JSON.stringify(row))
+               
+    })
+})
+
+router.put('/store', authenticate, adminOnly, (req, res) => {
+
+    const {id, name, address} = req.body
+
+    if(!id || !name || !address){
+        return res.status(400).send('Check given information')
+    }
+
+    db.serialize(() => {
+
+        const stmt = db.prepare('UPDATE stores SET name = ?, address = ? WHERE id = ?')
+        
+        stmt.run(name, address, id)
+        
+        stmt.finalize()
+
+        res.send('Store information updated')
+
+    })    
+})
+
+router.delete('/store/:id', authenticate, adminOnly, (req, res) => {
+    const id = req.params.id
+
+    db.run('DELETE FROM stores WHERE id = ?', [id], function(err) {
+        if(err){
+            return res.status(500).send('Internal Server Error')
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).send('Store not found')
+        }
+
+        res.send('Store deleted')
+    })    
 })
 
 app.use('/api/v1', router)
