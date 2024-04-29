@@ -24,7 +24,7 @@ Make sure to install these dependencies before running the project to ensure smo
 
 1. Create `.env` in project root and add JWT SECRET to the file `JWT_SECRET=XXXXXXXXXXXX`
 2. Install dependencies with command `npm install`
-3. Run the project from the with command `npm run dev`
+3. Run the project with command `npm run dev`
 
 ## API documentation
 
