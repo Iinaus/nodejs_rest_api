@@ -78,7 +78,7 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 - **Response:** If successful, returns a message indicating successful user creation.
 
 #### PUT /user
-- **Description:** Updates information about a specific user identified by the provided id.
+- **Description:** Updates information about a specific user identified by the provided id. _(Requires authentication and admin privileges)_
 - **Request Body:** Expects JSON object with username, age, and id.
 - **Response:** Returns a message indicating successful user update.
 
@@ -88,7 +88,7 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 - **Response:** Returns a message indicating a successful age update.
 
 #### DELETE /user/{id}
-- **Description:** Deletes a specific user based on their ID.
+- **Description:** Deletes a specific user based on their ID. _(Requires authentication and admin privileges)_
 - **Path Parameter:** {id} - ID of the user.
 - **Response:** Returns a message indicating successful user deletion.
 
@@ -107,7 +107,7 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 - **Response:** Returns the store object if found.
 
 #### PUT /store
-- **Description:** Updates information about a specific store.
+- **Description:** Updates information about a specific store identified by the provided id. _(Requires authentication and admin privileges)_
 - **Request Body:** Expects JSON object with id, name, and address.
 - **Response:** Returns a message indicating successful store update.
 

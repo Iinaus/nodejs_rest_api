@@ -140,7 +140,7 @@ router.post("/user", async (req, res) => {
     })       
 })
 
-router.put("/user", (req, res) => {
+router.put("/user", authenticate, adminOnly, (req, res) => {
 
     const {username, age, id} = req.body
 
@@ -188,7 +188,7 @@ router.patch("/user", authenticate, (req, res) => {
     })
 })
 
-router.delete("/user/:id", (req, res) => {
+router.delete("/user/:id", authenticate, adminOnly, (req, res) => {
     const id = req.params.id
 
     db.run("DELETE FROM user WHERE id = ?", [id], (err) => {
