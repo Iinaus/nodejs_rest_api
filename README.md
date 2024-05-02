@@ -32,7 +32,7 @@ This project relies on the following dependencies:
 
 - **sqlite3**: To interact with SQLite database.
 - **express**: To handle HTTP requests and routes.
-- **brycpt**: To handle password hashing.
+- **bcrypt**: To handle password hashing.
 - **jsonwebtoken**: To handle authentication and token generation.
 - **cookie-parser**: To parse cookies in HTTP requests.
 - **crypto**: To generate cryptographic hashes and manage secure random numbers.
