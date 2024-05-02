@@ -156,8 +156,22 @@ router.put('/user', (req, res) => {
     })    
 })
 
-router.patch('/user', (req, res) => {
-    res.send('Käyttäjän ikä päivitetty onnistuneesti')
+router.patch('/user', authenticate, (req, res) => {
+    const {age} = req.body;
+    const {id} = req.userData;
+
+    if (!age) {
+        return res.status(400).send('Ikä puuttuu')
+    }
+
+    db.run('UPDATE user SET age = ? WHERE id = ?', [age, id], (err) => {
+        
+        if (err) {
+            return res.status(500).send('Virhe käyttäjän iän päivittämisessä')
+        }
+
+        res.send('Käyttäjän ikä päivitetty onnistuneesti')
+    })
 })
 
 router.delete('/user/:id', (req, res) => {

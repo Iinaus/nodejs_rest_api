@@ -56,7 +56,7 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 
 #### GET /user
 - **Description:** Retrieves information about all users. _(Requires authentication and admin privileges)_
-- **Response:** Returns a list of user objects.
+- **Response:** Returns an array of user objects.
 
 #### GET /user/account
 - **Description:** Retrieves information about the authenticated user's account.
@@ -84,7 +84,8 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 
 #### PATCH /user
 - **Description:** Updates the age of the authenticated user.
-- **Response:** Returns a message indicating successful age update.
+- **Request Body:** Expects a JSON object with the new age.
+- **Response:** Returns a message indicating a successful age update.
 
 #### DELETE /user/{id}
 - **Description:** Deletes a specific user based on their ID.
