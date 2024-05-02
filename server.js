@@ -107,10 +107,8 @@ router.post("/user/login", (req, res) => {
             })
         } else {
             return res.status(400).send()
-        }
-               
+        }               
     })
-
 })
 
 router.post("/user", async (req, res) => {
@@ -118,7 +116,7 @@ router.post("/user", async (req, res) => {
     const {username, password, age, role} = req.body
 
     if(!username || !age || !password || !role){
-        return res.status(400).send("Check given information.")
+        return res.status(400).send("Check given information")
     }
 
     const hashedPassword = await hash(password, saltRounds)
@@ -134,11 +132,11 @@ router.post("/user", async (req, res) => {
             })*/
 
             return res.status(400).json({
-                error: "Kokeile toista käyttäjänimeä"
+                error: "Username taken, try another username"
             })
         }
 
-        res.status(201).send("Käyttäjä luotu onnistuneesti")  
+        res.status(201).send("User created successfully")  
     })       
 })
 
@@ -147,7 +145,7 @@ router.put("/user", (req, res) => {
     const {username, age, id} = req.body
 
     if(!username || !age || !id){
-        return res.status(400).send("Tarkista tiedot.")
+        return res.status(400).send("Check given information")
     }
 
     db.serialize(() => {
@@ -161,14 +159,13 @@ router.put("/user", (req, res) => {
             if (err) {
 
                 if (err.code === "SQLITE_CONSTRAINT") {
-                    return res.status(400).send("Käyttäjänimi on jo käytössä.");
+                    return res.status(400).send("Username taken, try another username")
                 }
 
-                console.error("Error updating user:", err)
-                return res.status(500).send("Virhe käyttäjän päivittämisessä.")
+                return res.status(500).send("Error updating user")
             }
 
-            res.send("Käyttäjä päivitetty onnistuneesti");
+            res.send("User updated succesfully");
         })
     })    
 })
@@ -178,16 +175,16 @@ router.patch("/user", authenticate, (req, res) => {
     const {id} = req.userData;
 
     if (!age) {
-        return res.status(400).send("Ikä puuttuu")
+        return res.status(400).send("Age is missing")
     }
 
     db.run("UPDATE user SET age = ? WHERE id = ?", [age, id], (err) => {
         
         if (err) {
-            return res.status(500).send("Virhe käyttäjän iän päivittämisessä")
+            return res.status(500).send("Error updating user's age")
         }
 
-        res.send("Käyttäjän ikä päivitetty onnistuneesti")
+        res.send("User's age updated successfully")
     })
 })
 
@@ -200,7 +197,7 @@ router.delete("/user/:id", (req, res) => {
             return res.status(404).send()
         }
 
-        res.send("Käyttäjätili poistettu onnistuneesti")
+        res.send("User deleted successfully")
 
     })    
 })
@@ -212,7 +209,7 @@ router.post("/store", authenticate, adminOnly, async (req, res) => {
     const {name, address} = req.body
 
     if(!name || !address ){
-        return res.status(400).send("Tarkista tiedot: kaupan nimi ja osoite ovat pakollisia.")
+        return res.status(400).send("Check the information: store name and address are mandatory")
     }
     
     const stmt = db.prepare("INSERT INTO stores VALUES (NULL, ?, ?)")
@@ -222,11 +219,11 @@ router.post("/store", authenticate, adminOnly, async (req, res) => {
         if(err){
 
             return res.status(400).json({
-                error: "Kaupan nimi on jo käytössä. Kokeile toista nimeä kaupalle."
+                error: "Storename taken, try another name"
             })
         }
 
-        res.status(201).send("Kauppa luotu onnistuneesti")  
+        res.status(201).send("Store created successfully")  
     })       
 })
 
@@ -276,7 +273,7 @@ router.put("/store", authenticate, adminOnly, (req, res) => {
         
         stmt.finalize()
 
-        res.send("Store information updated")
+        res.send("Store information updated successfully")
 
     })    
 })
@@ -293,7 +290,7 @@ router.delete("/store/:id", authenticate, adminOnly, (req, res) => {
             return res.status(404).send("Store not found")
         }
 
-        res.send("Store deleted")
+        res.send("Store deleted successfully")
     })    
 })
 
