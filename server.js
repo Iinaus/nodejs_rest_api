@@ -29,6 +29,10 @@ router.get("/user", authenticate, adminOnly, (req, res) => {
 
 router.get("/user/account", authenticate, (req, res) => {
 
+    if(err) {
+        res.status(500).send("Internal server error")
+    }
+
     res.json(req.userData)
 
 })
