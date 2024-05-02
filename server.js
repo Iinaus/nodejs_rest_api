@@ -191,14 +191,16 @@ router.patch("/user", authenticate, (req, res) => {
 router.delete("/user/:id", authenticate, adminOnly, (req, res) => {
     const id = req.params.id
 
-    db.run("DELETE FROM user WHERE id = ?", [id], (err) => {
-        
+    db.run("DELETE FROM user WHERE id = ?", [id], function(err) {
         if(err){
-            return res.status(404).send()
+            return res.status(500).send("Internal Server Error")
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).send("User not found")
         }
 
         res.send("User deleted successfully")
-
     })    
 })
 
