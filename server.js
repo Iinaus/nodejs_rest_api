@@ -147,12 +147,22 @@ router.put('/user', (req, res) => {
 
         const stmt = db.prepare('UPDATE user SET username = ?, age = ? WHERE id = ?')
         
-        stmt.run(username, age, id)
-        
-        stmt.finalize()
+        stmt.run(username, age, id, (err) => {
 
-        res.send('Käyttäjä päivitetty onnistuneesti')
+            stmt.finalize()
 
+            if (err) {
+
+                if (err.code === 'SQLITE_CONSTRAINT') {
+                    return res.status(400).send('Käyttäjänimi on jo käytössä.');
+                }
+                
+                console.error('Error updating user:', err)
+                return res.status(500).send('Virhe käyttäjän päivittämisessä.')
+            }
+
+            res.send('Käyttäjä päivitetty onnistuneesti');
+        })
     })    
 })
 
