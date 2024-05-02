@@ -28,13 +28,16 @@ router.get("/user", authenticate, adminOnly, (req, res) => {
 })
 
 router.get("/user/account", authenticate, (req, res) => {
+    try {
+        if (!req.userData) {
+            return res.status(404).send("User data not found")
+        }
 
-    if(err) {
+        res.json(req.userData)
+
+    } catch (error) {
         res.status(500).send("Internal server error")
     }
-
-    res.json(req.userData)
-
 })
 
 router.get("/user/:id", (req, res) => {
