@@ -12,7 +12,7 @@
 
 ## About
 
-This project is a Node.js-based RESTful API designed to manage user data and store information. It serves as a practical exercise for learning web programming interfaces and backend development concepts. The project was developed as part of the coursework for the Web Programming Interfaces course at Lapland University of Applied Sciences.
+This project is a NodeJS based RESTful API designed to manage user data and store information. It serves as a practical exercise for learning web programming interfaces and backend development concepts. The project was developed as part of the coursework for the Web Programming Interfaces course at Lapland University of Applied Sciences.
 
 With this exercise we practiced:
 - Setting up a NodeJS backend with Express.
@@ -32,7 +32,7 @@ This project relies on the following dependencies:
 
 - **sqlite3**: To interact with SQLite database.
 - **express**: To handle HTTP requests and routes.
-- **brycpt**: To handle password hashing.
+- **bcrypt**: To handle password hashing.
 - **jsonwebtoken**: To handle authentication and token generation.
 - **cookie-parser**: To parse cookies in HTTP requests.
 - **crypto**: To generate cryptographic hashes and manage secure random numbers.
