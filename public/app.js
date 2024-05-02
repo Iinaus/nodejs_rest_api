@@ -11,25 +11,25 @@ async function getUsers() {
     }    
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
     await getUsers()
 
-    const button = document.createElement('button')
+    const button = document.createElement("button")
 
     button.innerText = "Luo käyttäjä"
 
-    button.addEventListener('click', async () => {
+    button.addEventListener("click", async () => {
         const response = await fetch("http://localhost:3000/api/v1/user", {
-            method: 'post',
+            method: "post",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                username: 'testi' + crypto.randomUUID(),
-                password: 'salasana',
+                username: "testi" + crypto.randomUUID(),
+                password: "salasana",
                 age: 50,
-                role: 'user'
+                role: "user"
             })
         })
 

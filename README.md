@@ -78,7 +78,7 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 - **Response:** If successful, returns a message indicating successful user creation.
 
 #### PUT /user
-- **Description:** Updates information about a specific user.
+- **Description:** Updates information about a specific user identified by the provided id.
 - **Request Body:** Expects JSON object with username, age, and id.
 - **Response:** Returns a message indicating successful user update.
 

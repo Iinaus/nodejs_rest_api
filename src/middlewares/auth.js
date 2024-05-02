@@ -13,14 +13,14 @@ export function authenticate (req, res, next){
 
         const {jti} = jwt.verify(accessToken, JWT_SECRET)
 
-        db.get('SELECT id, username, age, role FROM user WHERE jti = ?', [jti], (err,row) => {
+        db.get("SELECT id, username, age, role FROM user WHERE jti = ?", [jti], (err,row) => {
 
             if(err) {
-                return res.status(404).send('Account data not found')
+                return res.status(404).send("Account data not found")
             } 
 
             if(!row) {
-                return res.status(404).send('Account data not found')
+                return res.status(404).send("Account data not found")
             }
 
             req.userData = row            
