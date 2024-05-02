@@ -24,9 +24,7 @@ export function authenticate (req, res, next){
             }
 
             req.userData = row            
-            next()
-            //res.json(row)
-                
+            next()                
         })
 
     } catch (err){
@@ -41,5 +39,4 @@ export function adminOnly(req, res, next){
     } else {
         res.status(401).send()
     }
-
 }

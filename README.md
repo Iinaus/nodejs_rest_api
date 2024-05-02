@@ -99,7 +99,7 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 
 #### GET /store
 - **Description:** Retrieves information about all stores.
-- **Response:** Returns a list of store objects.
+- **Response:** Returns an array of store objects.
 
 #### GET /store/{id}
 - **Description:** Retrieves information about a specific store based on its ID.

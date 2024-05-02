@@ -63,17 +63,17 @@ router.post("/user/login", (req, res) => {
     const {username, password} = req.body
 
     if(!username || !password){
-        return res.status(400).send()
+        return res.status(400).send("Please check the provided information and fill in the missing fields")
     }
 
     db.get("SELECT id, password, role FROM user WHERE username = ?", [username], async (err,row) => {
 
         if(err) {
-            return res.status(400).send()
+            return res.status(400).send("Login failed. Please check your username and password and try again")
         } 
 
         if(!row) {
-            return res.status(404).send()
+            return res.status(404).send("Login failed. Please check your username and password and try again")
         }
         
         const isAuthenticated = await compare(password, row.password)
@@ -106,7 +106,7 @@ router.post("/user/login", (req, res) => {
                 return res.send("Login successful")
             })
         } else {
-            return res.status(400).send()
+            return res.status(400).send("Login failed. Please check your username and password and try again")
         }               
     })
 })
@@ -116,7 +116,7 @@ router.post("/user", async (req, res) => {
     const {username, password, age, role} = req.body
 
     if(!username || !age || !password || !role){
-        return res.status(400).send("Check given information")
+        return res.status(400).send("Please check the provided information and fill in the missing fields")
     }
 
     const hashedPassword = await hash(password, saltRounds)
@@ -131,7 +131,7 @@ router.post("/user", async (req, res) => {
                 error: err
             })*/
 
-            return res.status(400).json({
+            return res.status(409).json({
                 error: "Username taken, try another username"
             })
         }
@@ -145,7 +145,7 @@ router.put("/user", authenticate, adminOnly, (req, res) => {
     const {username, age, id} = req.body
 
     if(!username || !age || !id){
-        return res.status(400).send("Check given information")
+        return res.status(400).send("Please check the provided information and fill in the missing fields")
     }
 
     db.serialize(() => {
@@ -159,7 +159,7 @@ router.put("/user", authenticate, adminOnly, (req, res) => {
             if (err) {
 
                 if (err.code === "SQLITE_CONSTRAINT") {
-                    return res.status(400).send("Username taken, try another username")
+                    return res.status(409).send("Username taken, try another username")
                 }
 
                 return res.status(500).send("Error updating user")
@@ -218,8 +218,8 @@ router.post("/store", authenticate, adminOnly, async (req, res) => {
 
         if(err){
 
-            return res.status(400).json({
-                error: "Storename taken, try another name"
+            return res.status(409).json({
+                error: "Name taken, try another name"
             })
         }
 
@@ -262,18 +262,28 @@ router.put("/store", authenticate, adminOnly, (req, res) => {
     const {id, name, address} = req.body
 
     if(!id || !name || !address){
-        return res.status(400).send("Check given information")
+        return res.status(400).send("Check the provided information and fill in the missing fields")
     }
 
     db.serialize(() => {
 
         const stmt = db.prepare("UPDATE stores SET name = ?, address = ? WHERE id = ?")
-        
-        stmt.run(name, address, id)
-        
-        stmt.finalize()
 
-        res.send("Store information updated successfully")
+        stmt.run(name, address, id, (err) => {
+
+            stmt.finalize()
+
+            if (err) {
+
+                if (err.code === "SQLITE_CONSTRAINT") {
+                    return res.status(409).send("Name taken, try another name")
+                }
+
+                return res.status(500).send("Error updating store")
+            }
+
+            res.send("User updated succesfully");
+        })
 
     })    
 })
