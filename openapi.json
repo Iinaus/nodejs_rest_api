@@ -2,13 +2,16 @@
   "openapi": "3.0.3",
   "info": {
     "title": "NodeJS - REST API",
-    "description": "This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about",
-    "version": "0.0.01"
+    "version": "1.0.0"
   },
   "tags": [
     {
       "name": "user",
       "description": "Operations about user"
+    },
+    {
+      "name": "store",
+      "description": "Operations about store"
     }
   ],
   "paths": {
@@ -20,11 +23,8 @@
         "summary": "Show all users",
         "description": "This can only be done by admins.",
         "responses": {
-          "404": {
-            "description": "Users not found"
-          },
-          "default": {
-            "description": "successful operation",
+          "200": {
+            "description": "Successful operation returns an array of user objects",
             "content": {
               "application/json": {
                 "schema": {
@@ -32,6 +32,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Users not found"
           }
         }
       },
@@ -41,25 +44,24 @@
         ],
         "summary": "Create user",
         "requestBody": {
-          "description": "Created user object",
+          "description": "Expects a JSON object representing user data (username, password, age, role)",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/User-post"
               }
             }
           }
         },
         "responses": {
-          "default": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
+          "201": {
+            "description": "Returns a message indicating successful user creation"
+          },
+          "400": {
+            "description": "Check the provided information and fill in the missing fields"
+          },
+          "409": {
+            "description": "Username taken, try another username"
           }
         }
       },
@@ -67,23 +69,30 @@
         "tags": [
           "user"
         ],
-        "summary": "Update user",
+        "summary": "Update user identified by the id",
+        "description": "This can only be done by admins.",
         "requestBody": {
-          "description": "Update an existent user in the store",
+          "description": "Expects JSON object with username, age, and id",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/User-put"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Returns a message indicating successful user update"
           },
           "400": {
-            "description": "Tarkista tiedot"
+            "description": "Check the provided information and fill in the missing fields"
+          },
+          "409": {
+            "description": "Username taken, try another username"
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       },
@@ -91,10 +100,26 @@
         "tags": [
           "user"
         ],
-        "summary": "Update age",
+        "summary": "Update age of the authenticated user",
+        "requestBody": {
+          "description": "Expects a JSON object with the new age",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User-patch"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Käyttäjän ikä päivitetty onnistuneesti"
+            "description": "Returns a message indicating a successful age update"
+          },
+          "400": {
+            "description": "Check the provided information and fill in the missing fields"
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       }
@@ -107,13 +132,17 @@
         "summary": "Show user data of logged in user",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Successful operation returns the user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
           },
-          "401": {
-            "description": "Invalid username/password supplied"
-          },
-          "404": {
-            "description": "Account data not found"
+          "500": {
+            "description": "Server error"
           }
         }
       }
@@ -124,25 +153,19 @@
           "user"
         ],
         "summary": "Logs user into the system",
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "headers": {
-              "X-Expires-After": {
-                "description": "date in UTC when token expires",
-                "schema": {
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
+        "requestBody": {
+          "description": "Expects JSON object with username and password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
               }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation returns a message indicating successful login and sets a cookie with an access token"
           },
           "400": {
             "description": "Invalid username/password supplied"
@@ -172,7 +195,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Successful operation returns the user object",
             "content": {
               "application/json": {
                 "schema": {
@@ -182,7 +205,7 @@
             }
           },
           "404": {
-            "description": "User not found"
+            "description": "User with id {id} not found"
           }
         }
       },
@@ -191,6 +214,7 @@
           "user"
         ],
         "summary": "Delete user",
+        "description": "This can only be done by admins.",
         "parameters": [
           {
             "name": "id",
@@ -204,10 +228,152 @@
         ],
         "responses": {
           "200": {
-            "description": "Käyttäjätili poistettu onnistuneesti"
+            "description": "Returns a message indicating successful user deletion"
           },
           "404": {
             "description": "User not found"
+          }
+        }
+      }
+    },
+    "/store": {
+      "get": {
+        "tags": [
+          "store"
+        ],
+        "summary": "Show all stores",
+        "responses": {
+          "200": {
+            "description": "Successful operation returns an array of store objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stores not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "store"
+        ],
+        "summary": "Create store",
+        "description": "This can only be done by admins.",
+        "requestBody": {
+          "description": "Expects a JSON object representing store data (name, address)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Store-post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation returns a message indicating successful store creation"
+          },
+          "400": {
+            "description": "Check the provided information and fill in the missing fields"
+          },
+          "409": {
+            "description": "Name taken, try another name"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "store"
+        ],
+        "summary": "Update store",
+        "description": "This can only be done by admins.",
+        "requestBody": {
+          "description": "Expects JSON object with id, name, and address",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Store"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation returns a message indicating successful store update"
+          },
+          "400": {
+            "description": "Check the provided information and fill in the missing fields"
+          },
+          "409": {
+            "description": "Name taken, try another name"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/store/{id}": {
+      "get": {
+        "tags": [
+          "store"
+        ],
+        "summary": "Get store by store id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id that needs to be fetched.",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation returns the store object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Store with id {id} not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "store"
+        ],
+        "summary": "Delete store",
+        "description": "This can only be done by admins.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id that needs to be deleted",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation returns a message indicating successful store deletion"
+          },
+          "404": {
+            "description": "Store not found"
           }
         }
       }
@@ -227,26 +393,110 @@
             "type": "string",
             "example": "userTest123"
           },
+          "age": {
+            "type": "integer",
+            "format": "int64",
+            "example": 30
+          },
+          "role": {
+            "type": "string",
+            "example": "user"
+          }
+        }
+      },
+      "User-post": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "userTest123"
+          },
           "password": {
             "type": "string",
-            "example": "12345"
+            "example": "paSSw0rd"
           },
           "age": {
             "type": "integer",
             "format": "int64",
             "example": 30
           },
-          "jti": {
-            "type": "string",
-            "example": "12345"
-          },
           "role": {
             "type": "string",
             "example": "user"
           }
-        },
-        "xml": {
-          "name": "user"
+        }
+      },
+      "User-put": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "username": {
+            "type": "string",
+            "example": "userTest123"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int64",
+            "example": 30
+          }
+        }
+      },
+      "User-patch": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "integer",
+            "format": "int64",
+            "example": 30
+          }
+        }
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "userTest123"
+          },
+          "password": {
+            "type": "string",
+            "example": "paSSw0rd"
+          }
+        }
+      },
+      "Store": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "name": {
+            "type": "string",
+            "example": "Testikauppa"
+          },
+          "address": {
+            "type": "string",
+            "example": "Testiosoite 1, 05200 Kaupunki"
+          }
+        }
+      },
+      "Store-post": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Testikauppa"
+          },
+          "address": {
+            "type": "string",
+            "example": "Testiosoite 1, 05200 Kaupunki"
+          }
         }
       }
     },
