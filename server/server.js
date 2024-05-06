@@ -20,7 +20,7 @@ router.get("/user", authenticate, adminOnly, (req, res) => {
     db.all("SELECT id, username, age, role FROM user", [], (err, rows) => {
 
         if(err) {
-            return res.status(404).send("Users not found")
+            return res.status(404).send("Users not found.")
         }
 
         res.send(JSON.stringify(rows))
@@ -30,13 +30,13 @@ router.get("/user", authenticate, adminOnly, (req, res) => {
 router.get("/user/account", authenticate, (req, res) => {
     try {
         if (!req.userData) {
-            return res.status(404).send("User data not found")
+            return res.status(404).send("User data not found.")
         }
 
         res.json(req.userData)
 
     } catch (error) {
-        res.status(500).send("Internal server error")
+        res.status(500).send("Internal server error.")
     }
 })
 
@@ -46,11 +46,11 @@ router.get("/user/:id", (req, res) => {
     db.get("SELECT id, username, age, role FROM user WHERE id = ?", [id], (err,row) => {
 
         if(err) {
-            return res.status(404).send("User not found")
+            return res.status(404).send("User not found.")
         } 
 
         if(!row) {
-            return res.status(404).send("User not found")
+            return res.status(404).send("User not found.")
         }
         
         res.send(JSON.stringify(row))
@@ -63,17 +63,17 @@ router.post("/user/login", (req, res) => {
     const {username, password} = req.body
 
     if(!username || !password){
-        return res.status(400).send("Please check the provided information and fill in the missing fields")
+        return res.status(400).send("Please check the provided information and fill in the missing fields.")
     }
 
     db.get("SELECT id, password, role FROM user WHERE username = ?", [username], async (err,row) => {
 
         if(err) {
-            return res.status(400).send("Login failed. Please check your username and password and try again")
+            return res.status(400).send("Login failed. Please check your username and password and try again.")
         } 
 
         if(!row) {
-            return res.status(404).send("Login failed. Please check your username and password and try again")
+            return res.status(404).send("Login failed. Please check your username and password and try again.")
         }
         
         const isAuthenticated = await compare(password, row.password)
@@ -103,10 +103,10 @@ router.post("/user/login", (req, res) => {
                     secure: true
                 })
     
-                return res.send("Login successful")
+                return res.send("Login successful.")
             })
         } else {
-            return res.status(400).send("Login failed. Please check your username and password and try again")
+            return res.status(400).send("Login failed. Please check your username and password and try again.")
         }               
     })
 })
@@ -116,7 +116,7 @@ router.post("/user", async (req, res) => {
     const {username, password, age, role} = req.body
 
     if(!username || !Number.isInteger(age)  || !password || !role){
-        return res.status(400).send("Please check the provided information and fill in the missing fields")
+        return res.status(400).send("Please check the provided information and fill in the missing fields.")
     }
 
     const hashedPassword = await hash(password, saltRounds)
@@ -131,10 +131,10 @@ router.post("/user", async (req, res) => {
                 error: err
             })*/
 
-            return res.status(409).send("Username taken, try another username")
+            return res.status(409).send("Username taken, try another username.")
         }
 
-        res.status(201).send("User created successfully")  
+        res.status(201).send("User created successfully.")  
     })       
 })
 
@@ -143,7 +143,7 @@ router.put("/user", authenticate, adminOnly, (req, res) => {
     const {username, age, id} = req.body
 
     if(!username || !Number.isInteger(age) || !Number.isInteger(id)){
-        return res.status(400).send("Please check the provided information and fill in the missing fields")
+        return res.status(400).send("Please check the provided information and fill in the missing fields.")
     }
 
     db.serialize(() => {
@@ -155,18 +155,18 @@ router.put("/user", authenticate, adminOnly, (req, res) => {
             stmt.finalize()
 
             if (this.changes === 0) {
-                return res.status(404).send("User not found, please check the id")
+                return res.status(404).send("User not found, please check the id.")
             }
 
             if (err) {
                 if (err.code === "SQLITE_CONSTRAINT") {
-                    return res.status(409).send("Username taken, try another username");
+                    return res.status(409).send("Username taken, try another username.");
                 }
 
-                return res.status(500).send("Error updating user")
+                return res.status(500).send("Error updating user.")
             }
 
-            res.send("User updated succesfully")
+            res.send("User updated succesfully.")
         })
     })    
 })
@@ -176,16 +176,16 @@ router.patch("/user", authenticate, (req, res) => {
     const {id} = req.userData;
 
     if (!Number.isInteger(age)) {
-        return res.status(400).send("Please check the provided information and fill in the missing fields")
+        return res.status(400).send("Please check the provided information and fill in the missing fields.")
     }
 
     db.run("UPDATE user SET age = ? WHERE id = ?", [age, id], (err) => {
         
         if (err) {
-            return res.status(500).send("Error updating user's age")
+            return res.status(500).send("Error updating user's age.")
         }
 
-        res.send("User's age updated successfully")
+        res.send("User's age updated successfully.")
     })
 })
 
@@ -194,14 +194,14 @@ router.delete("/user/:id", authenticate, adminOnly, (req, res) => {
 
     db.run("DELETE FROM user WHERE id = ?", [id], function(err) {
         if(err){
-            return res.status(500).send("Internal Server Error")
+            return res.status(500).send("Internal Server Error.")
         }
 
         if (this.changes === 0) {
-            return res.status(404).send("User not found, please check the id")
+            return res.status(404).send("User not found, please check the id.")
         }
 
-        res.send("User deleted successfully")
+        res.send("User deleted successfully.")
     })    
 })
 
@@ -212,7 +212,7 @@ router.post("/store", authenticate, adminOnly, async (req, res) => {
     const {name, address} = req.body
 
     if(!name || !address ){
-        return res.status(400).send("Check the information: store name and address are mandatory")
+        return res.status(400).send("Check the information: store name and address are mandatory.")
     }
     
     const stmt = db.prepare("INSERT INTO stores VALUES (NULL, ?, ?)")
@@ -222,11 +222,11 @@ router.post("/store", authenticate, adminOnly, async (req, res) => {
         if(err){
 
             return res.status(409).json({
-                error: "Name taken, try another name"
+                error: "Name taken, try another name."
             })
         }
 
-        res.status(201).send("Store created successfully")  
+        res.status(201).send("Store created successfully.")  
     })       
 })
 
@@ -235,7 +235,7 @@ router.get("/store", (req, res) => {
     db.all("SELECT * FROM stores", [], (err, rows) => {
 
         if(err) {
-            return res.status(404).send("Stores not found")
+            return res.status(404).send("Stores not found.")
         }
 
         res.send(JSON.stringify(rows))
@@ -248,11 +248,11 @@ router.get("/store/:id", (req, res) => {
     db.get("SELECT * FROM stores WHERE id = ?", [id], (err,row) => {
 
         if(err) {
-            return res.status(404).send("Store not found")
+            return res.status(404).send("Store not found.")
         } 
 
         if(!row) {
-            return res.status(404).send("Store not found")
+            return res.status(404).send("Store not found.")
         }
         
         res.send(JSON.stringify(row))
@@ -265,7 +265,7 @@ router.put("/store", authenticate, adminOnly, (req, res) => {
     const {id, name, address} = req.body
 
     if(!Number.isInteger(id) || !name || !address){
-        return res.status(400).send("Check the provided information and fill in the missing fields")
+        return res.status(400).send("Check the provided information and fill in the missing fields.")
     }
 
     db.serialize(() => {
@@ -277,19 +277,19 @@ router.put("/store", authenticate, adminOnly, (req, res) => {
             stmt.finalize()
 
             if (this.changes === 0) {
-                return res.status(404).send("Store not found, please check the id")
+                return res.status(404).send("Store not found, please check the id.")
             }
 
             if (err) {
 
                 if (err.code === "SQLITE_CONSTRAINT") {
-                    return res.status(409).send("Name taken, try another name")
+                    return res.status(409).send("Name taken, try another name.")
                 }
 
-                return res.status(500).send("Error updating store")
+                return res.status(500).send("Error updating store.")
             }
 
-            res.send("User updated succesfully");
+            res.send("User updated succesfully.");
         })
 
     })    
@@ -304,10 +304,10 @@ router.delete("/store/:id", authenticate, adminOnly, (req, res) => {
         }
 
         if (this.changes === 0) {
-            return res.status(404).send("Store not found, please check the id")
+            return res.status(404).send("Store not found, please check the id.")
         }
 
-        res.send("Store deleted successfully")
+        res.send("Store deleted successfully.")
     })    
 })
 
