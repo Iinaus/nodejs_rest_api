@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { db } from "../../database/sqlite.js";
+import { db } from "../database/sqlite.js";
 import { JWT_SECRET } from "../config.js";
 
 

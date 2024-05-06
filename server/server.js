@@ -4,8 +4,8 @@ import { db } from "./database/sqlite.js";
 import { compare, hash } from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { JWT_SECRET } from "./src/config.js";
-import { adminOnly, authenticate } from "./src/middlewares/auth.js";
+import { JWT_SECRET } from "./config.js";
+import { adminOnly, authenticate } from "./middlewares/auth.js";
 
 const app = express();
 
@@ -115,7 +115,7 @@ router.post("/user", async (req, res) => {
 
     const {username, password, age, role} = req.body
 
-    if(!username || !age || !password || !role){
+    if(!username || !Number.isInteger(age)  || !password || !role){
         return res.status(400).send("Please check the provided information and fill in the missing fields")
     }
 
@@ -131,9 +131,7 @@ router.post("/user", async (req, res) => {
                 error: err
             })*/
 
-            return res.status(409).json({
-                error: "Username taken, try another username"
-            })
+            return res.status(409).send("Username taken, try another username")
         }
 
         res.status(201).send("User created successfully")  
@@ -144,7 +142,7 @@ router.put("/user", authenticate, adminOnly, (req, res) => {
 
     const {username, age, id} = req.body
 
-    if(!username || !age || !id){
+    if(!username || !Number.isInteger(age) || !Number.isInteger(id)){
         return res.status(400).send("Please check the provided information and fill in the missing fields")
     }
 
@@ -152,20 +150,23 @@ router.put("/user", authenticate, adminOnly, (req, res) => {
 
         const stmt = db.prepare("UPDATE user SET username = ?, age = ? WHERE id = ?")
         
-        stmt.run(username, age, id, (err) => {
+        stmt.run(username, age, id, function(err) {
 
             stmt.finalize()
 
-            if (err) {
+            if (this.changes === 0) {
+                return res.status(404).send("User not found, please check the id")
+            }
 
+            if (err) {
                 if (err.code === "SQLITE_CONSTRAINT") {
-                    return res.status(409).send("Username taken, try another username")
+                    return res.status(409).send("Username taken, try another username");
                 }
 
                 return res.status(500).send("Error updating user")
             }
 
-            res.send("User updated succesfully");
+            res.send("User updated succesfully")
         })
     })    
 })
@@ -174,8 +175,8 @@ router.patch("/user", authenticate, (req, res) => {
     const {age} = req.body;
     const {id} = req.userData;
 
-    if (!age) {
-        return res.status(400).send("Age is missing")
+    if (!Number.isInteger(age)) {
+        return res.status(400).send("Please check the provided information and fill in the missing fields")
     }
 
     db.run("UPDATE user SET age = ? WHERE id = ?", [age, id], (err) => {
@@ -197,7 +198,7 @@ router.delete("/user/:id", authenticate, adminOnly, (req, res) => {
         }
 
         if (this.changes === 0) {
-            return res.status(404).send("User not found")
+            return res.status(404).send("User not found, please check the id")
         }
 
         res.send("User deleted successfully")
@@ -263,7 +264,7 @@ router.put("/store", authenticate, adminOnly, (req, res) => {
 
     const {id, name, address} = req.body
 
-    if(!id || !name || !address){
+    if(!Number.isInteger(id) || !name || !address){
         return res.status(400).send("Check the provided information and fill in the missing fields")
     }
 
@@ -271,9 +272,13 @@ router.put("/store", authenticate, adminOnly, (req, res) => {
 
         const stmt = db.prepare("UPDATE stores SET name = ?, address = ? WHERE id = ?")
 
-        stmt.run(name, address, id, (err) => {
+        stmt.run(name, address, id, function(err) {
 
             stmt.finalize()
+
+            if (this.changes === 0) {
+                return res.status(404).send("Store not found, please check the id")
+            }
 
             if (err) {
 
@@ -299,7 +304,7 @@ router.delete("/store/:id", authenticate, adminOnly, (req, res) => {
         }
 
         if (this.changes === 0) {
-            return res.status(404).send("Store not found")
+            return res.status(404).send("Store not found, please check the id")
         }
 
         res.send("Store deleted successfully")
