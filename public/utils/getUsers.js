@@ -1,13 +1,12 @@
-export function login(credentials) {
-    return fetch("/api/v1/user/login", {
-        method: "POST",
+export function getUsers() {
+    return fetch("/api/v1/user", {
+        method: "GET",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(credentials)
     }).then((response) => {
         if (response.ok) {
-            window.location.href = "dashboard.html"
+            return response.json()
         } else {
             return response.text().then((errorMessage) => {
                 throw new Error(errorMessage)

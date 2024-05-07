@@ -111,6 +111,40 @@ router.post("/user/login", (req, res) => {
     })
 })
 
+// clientia varten endpoint jtwTokenin tarkistamista varten
+app.post("/checkToken", authenticate, (req, res) => {
+    if (req.userData) {
+        res.status(200).json({ message: "Valid token" })
+    } else {
+        res.status(401).json({ message: "Invalid token" })
+    }
+})
+
+router.post("/user/logout", (req, res) => {
+    const accessToken = req.cookies.accessToken
+
+    if (!accessToken) {
+        return res.status(401).send("Unauthorized")
+    }
+
+    jwt.verify(accessToken, JWT_SECRET, async (err, decoded) => {
+        if (err) {
+            return res.status(401).send("Unauthorized")
+        }
+
+        const { jti } = decoded
+
+        db.run("UPDATE user SET jti = NULL WHERE jti = ?", [jti], (err) => {
+            if (err) {
+                return res.status(500).send("Internal Server Error")
+            }
+
+            res.clearCookie("accessToken")
+            return res.send("Logout successful.")
+        })
+    })
+})
+
 router.post("/user", async (req, res) => {
 
     const {username, password, age, role} = req.body

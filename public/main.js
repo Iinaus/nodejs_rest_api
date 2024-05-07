@@ -1,6 +1,14 @@
-import { login } from './utils/login.js';
+import { login } from './utils/login.js'
+import { checkToken } from './utils/checkToken.js'
 
 const loginForm = document.getElementById("login")
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const tokenStatus = await checkToken();
+    if (tokenStatus === "valid") {
+        window.location.href = "dashboard.html"
+    } 
+})
 
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault()
