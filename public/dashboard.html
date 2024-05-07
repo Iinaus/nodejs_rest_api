@@ -3,9 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles/dashboard.css">
     <script src="dashboard.js" type="module"></script>
-    <title>Login</title>
+    <title>Dashboard</title>
 </head>
-<body>  
+<body>
+    <div class="container">
+        <h1 id="greeting">Hello</h1>
+        <div>
+            <button id="getAccount">Account details</button>
+            <button id="logout">Logout</button>
+        </div>
+        <div id="userInfo" style="display: none;"></div>
+        <button id="hideUserInfo" style="display: none;">Hide User Info</button>
+    </div>
+    <div class="adminToolsContainer" id="adminTools" style="display: none;">
+        <button id="getUsers">List all users</button>
+        <button id="deleteUser">Delete user</button>
+        <button id="editUser">Edit user</button>
+    </div>
 </body>
 </html>
