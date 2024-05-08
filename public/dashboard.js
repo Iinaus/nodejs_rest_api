@@ -2,6 +2,7 @@ import { logout } from './utils/logout.js'
 import { checkToken } from './utils/checkToken.js'
 import { getUsers } from './utils/getUsers.js'
 import { deleteUser } from './utils/deleteUser.js'
+import { editUser } from './utils/editUser.js'
 
 async function getAccount() {
     try {
@@ -16,55 +17,87 @@ async function getAccount() {
     }    
 }
 
-async function listUsers() {
+let showResultVisible = false
+let resultContainer = null
+
+function createResultContainer() {  
+    resultContainer = document.createElement("div")
+    resultContainer.id = "resultContainer"
+    resultContainer.className = "container"
+
+    const closeBtn = document.createElement("button")
+    closeBtn.innerText = "Close"
+    closeBtn.className = "close-button"
+    closeBtn.addEventListener("click", () => {
+        hideResultContainer()
+    })
+
+    resultContainer.append(closeBtn)
+    resultContainer.style.display = "block"
+    document.body.appendChild(resultContainer)  
+    showResultVisible = true
+}
+
+function hideResultContainer() {
+    if (resultContainer) {
+        resultContainer.remove()
+        resultContainer = null
+        showResultVisible = false
+    }
+}
+
+function showUserInfo(username, age, role) {
+    if (resultContainer) {  
+        hideResultContainer()
+        createResultContainer()
+    } else {
+        createResultContainer()
+    }
+
+    const userInfo = document.createElement("p")
+    userInfo.innerHTML = `<ul>${username}, ${age}, ${role}</ul>`
+    resultContainer.append(userInfo) 
+}
+
+async function showUsers() {
+    if (resultContainer) {  
+        hideResultContainer()
+        createResultContainer()
+    } else {
+        createResultContainer()
+    }
+
     try {
         const data = await getUsers()
         const list = document.createElement("div")
         list.innerHTML = data.map(user => `<ul>${user.id}, ${user.username}, ${user.age}, ${user.role}</ul>`)
         .join("")
-        document.body.append(list)                
+        resultContainer.append(list)              
     } catch (error) {
         console.error("Virhe käyttäjien listauksessa:", error)
-    }
+    }  
 }
-
-function showUserInfo(username, age, role) {
-    const userInfo = document.getElementById("userInfo")
-    userInfo.innerHTML = `<ul>${username}, ${age}, ${role}</ul>`
-    document.getElementById("userInfo").style.display = "block"
-    document.getElementById("hideUserInfo").style.display = "block"
-}
-
-function hideUserInfo() {
-    document.getElementById("userInfo").style.display = "none"
-    document.getElementById("hideUserInfo").style.display = "none"
-}
-
-let showDeleteVisible = false
-let deleteContainer = null
 
 function showDelete() {
-    if (!deleteContainer) {
-        deleteContainer = document.createElement('div')
-        deleteContainer.id = "deleteContainer"
+    if (resultContainer) {  
+        hideResultContainer()
+        createResultContainer()
+    } else {
+        createResultContainer()
+    }
 
-        const text = document.createElement('p')
-        text.innerText = "Write the ID of the user to be deleted."
+    const text = document.createElement("p")
+    text.innerText = "Write the ID of the user to be deleted."
 
-        const deleteInput = document.createElement('input')
-        deleteInput.type = "number"
+    const deleteInput = document.createElement("input")
+    deleteInput.type = "number"
 
-        const closeBtn = document.createElement('button')
-        closeBtn.innerText = "Close"
-        closeBtn.addEventListener("click", () => {
-            hideDelete()
-        })
-
-        const deleteBtn = document.createElement('button')
-        deleteBtn.innerText = "Delete"
-        deleteBtn.addEventListener("click", () => {
-            const userId = deleteInput.value
-            deleteUser(userId)
+    const deleteBtn = document.createElement("button")
+    deleteBtn.innerText = "Delete"
+    deleteBtn.addEventListener("click", () => {
+        const id = deleteInput.value
+        if (id) {
+            deleteUser(id)
                 .then(response => response.text())
                 .then(message => {
                     alert(message)
@@ -72,61 +105,55 @@ function showDelete() {
                 .catch(error => {
                     alert("An error occurred: " + error.message)
                 })
-        })
+        } else {
+            alert("User ID cannot be empty!")
+        }
+    })
 
-        deleteContainer.append(text, deleteInput, deleteBtn, closeBtn)
-        document.body.appendChild(deleteContainer)
-    }
-
-    deleteContainer.style.display = "block"
-    showDeleteVisible = true
+    resultContainer.append(text, deleteInput, deleteBtn)
 }
-
-function hideDelete() {
-    if (deleteContainer) {
-        deleteContainer.remove()
-        deleteContainer = null
-        showDeleteVisible = false
-    }
-}
-
-let showEditVisible = false
-let editContainer = null
 
 function showEdit() {
-    if (!editContainer) {
-        editContainer = document.createElement('div')
-        editContainer.id = "editContainer"
-
-        const text = document.createElement('p')
-        text.innerText = "Write the ID of the user to be edited."
-
-        const editInput = document.createElement('input')
-        editInput.type = "number"
-
-        const closeBtn = document.createElement('button')
-        closeBtn.innerText = "Close"
-        closeBtn.addEventListener("click", () => {
-            hideEdit()
-        })
-
-        const editBtn = document.createElement('button')
-        editBtn.innerText = "edit"
-
-        editContainer.append(text, editInput, closeBtn)
-        document.body.appendChild(editContainer)
+    if (resultContainer) {  
+        hideResultContainer()
+        createResultContainer()
+    } else {
+        createResultContainer()
     }
 
-    editContainer.style.display = "block"
-    showEditVisible = true
-}
+    const text = document.createElement("p")
+    text.innerText = "Write the ID of the user to be edited and add new username and age."
 
-function hideEdit() {
-    if (editContainer) {
-        editContainer.remove()
-        editContainer = null
-        showEditVisible = false
-    }
+    const idInput = document.createElement("input")
+    idInput.type = "number"
+    idInput.placeholder = "id"
+
+    const usernameInput = document.createElement("input")
+    usernameInput.type = "text"
+    usernameInput.placeholder = "username"
+
+    const ageInput = document.createElement("input")
+    ageInput.type = "number"
+    ageInput.placeholder = "age"
+
+    const saveBtn = document.createElement("button")
+    saveBtn.innerText = "Save"
+    saveBtn.addEventListener("click", () => {
+        const id = parseInt(idInput.value)
+        const username = usernameInput.value
+        const age = parseInt(ageInput.value)
+        const data = {username, age, id}
+        editUser(data)
+        .then(response => response.text())
+            .then(message => {
+                alert(message)
+            })
+            .catch(error => {
+                alert("An error occurred: " + error.message)
+            })
+    })
+
+    resultContainer.append(text, idInput, usernameInput, ageInput, saveBtn)
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -137,43 +164,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const { username, age, role } = await getAccount()
 
-    document.getElementById("greeting").innerHTML = `Hello ${username}`
-
-    document.getElementById("getAccount").addEventListener("click", () => {
-        showUserInfo(username, age, role)
-    })
-
-    document.getElementById("hideUserInfo").addEventListener("click", () => {
-        hideUserInfo()
-    })
+    if (username) {
+        document.getElementById("greeting").innerHTML = `Hello ${username}`
+    }
 
     document.getElementById("logout").addEventListener("click", () => {
         logout()
     })
 
+    document.getElementById("getAccount").addEventListener("click", () => {
+        showUserInfo(username, age, role)
+    })
+
     if (role === "admin") {
-        document.getElementById("adminTools").style.display = "block"
+        document.getElementById("getUsers").style.display = "block"
+        document.getElementById("deleteUser").style.display = "block"
+        document.getElementById("editUser").style.display = "block"
 
         document.getElementById("getUsers").addEventListener("click", () => {
-            listUsers()
+            showUsers()
         })
 
-        document.getElementById("deleteUser").addEventListener("click", () => {
-            if(!showDeleteVisible){
-                showDelete()
-            }           
+        document.getElementById("deleteUser").addEventListener("click", () => {  
+            showDelete()      
         })
 
         document.getElementById("editUser").addEventListener("click", () => {
-            if(!showEditVisible){
-                showEdit()
-            } 
+            showEdit()
         })
-
     } else if (role === "user"){
-        const text = document.createElement('p')
-        text.innerText = "Tämä näkyy usereille"
-        document.body.append(text)
+        //tähän voi lisätä vain userille tarkoitettuja tietoja tai viestejä
     } else {
         window.location.href = "index.html"
     }    
