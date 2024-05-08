@@ -1,21 +1,7 @@
 import { logout } from './utils/logout.js'
 import { checkToken } from './utils/checkToken.js'
-import { getUsers } from './utils/getUsers.js'
-import { deleteUser } from './utils/deleteUser.js'
-import { editUser } from './utils/editUser.js'
-
-async function getAccount() {
-    try {
-        const response = await fetch("http://localhost:3000/api/v1/user/account")
-
-        const { username, age, role } = await response.json()
-
-        return { username, age, role }
-
-    } catch (error){
-        console.log(error)
-    }    
-}
+import { getAccount, updateAge } from './services/userServices.js'
+import { getUsers, deleteUser, editUser } from './services/adminServices.js'
 
 let showResultVisible = false
 let resultContainer = null
@@ -46,7 +32,7 @@ function hideResultContainer() {
     }
 }
 
-function showUserInfo(username, age, role) {
+async function showUserInfo() {
     if (resultContainer) {  
         hideResultContainer()
         createResultContainer()
@@ -54,9 +40,70 @@ function showUserInfo(username, age, role) {
         createResultContainer()
     }
 
-    const userInfo = document.createElement("p")
-    userInfo.innerHTML = `<ul>${username}, ${age}, ${role}</ul>`
-    resultContainer.append(userInfo) 
+    const { username, age, role } = await getAccount()
+
+    const tableContainer = document.createElement("div")
+    const tableHTML = `
+        <table>
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Age</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <td>${username}</td>
+                <td id="age">${age}</td>
+                <td>${role}</td>
+                </tr>
+            </tbody>
+        </table>
+        `
+    tableContainer.innerHTML = tableHTML
+
+    const editBtn = document.createElement("button")
+    editBtn.innerText = "Edit"
+    editBtn.addEventListener("click", () => {  
+        editBtn.style.display = "none"
+        
+        const cancelBtn = document.createElement("button")
+        cancelBtn.innerText = "Cancel"
+        cancelBtn.addEventListener("click", () => {
+            ageCell.innerHTML = null
+            ageCell.innerText = currentAge
+            resultContainer.removeChild(cancelBtn)
+            resultContainer.removeChild(saveBtn)
+            resultContainer.append(editBtn)
+        })
+
+        const ageCell = document.getElementById("age")
+        const currentAge = ageCell.innerText
+        const ageInput = document.createElement("input")
+
+        ageInput.type = "number"
+        ageInput.id = "ageInput"
+        ageInput.value = currentAge
+        ageCell.innerText = ""
+
+        ageCell.appendChild(ageInput)       
+
+        const saveBtn = document.createElement("button")
+        saveBtn.innerText = "Save"
+        saveBtn.addEventListener("click", () => {
+            const age = parseInt(ageInput.value)
+            const data = {age}
+            updateAge(data)
+            ageCell.innerHTML = null
+            ageCell.innerText = age
+            resultContainer.removeChild(cancelBtn)
+            resultContainer.removeChild(saveBtn)
+            resultContainer.append(editBtn)
+        })
+        resultContainer.append(cancelBtn, saveBtn)
+    })
+    resultContainer.append(tableContainer, editBtn)
 }
 
 async function showUsers() {
@@ -69,10 +116,31 @@ async function showUsers() {
 
     try {
         const data = await getUsers()
-        const list = document.createElement("div")
-        list.innerHTML = data.map(user => `<ul>${user.id}, ${user.username}, ${user.age}, ${user.role}</ul>`)
-        .join("")
-        resultContainer.append(list)              
+        const tableContainer = document.createElement("div")        
+        const tableHTML = `
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Username</th>
+                <th>Age</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+            ${data.map(user => `
+                <tr>
+                <td>${user.id}</td>
+                <td>${user.username}</td>
+                <td>${user.age}</td>
+                <td>${user.role}</td>
+                </tr>
+            `).join('')}
+            </tbody>
+        </table>
+        `
+        tableContainer.innerHTML = tableHTML
+        resultContainer.append(tableContainer)
     } catch (error) {
         console.error("Virhe käyttäjien listauksessa:", error)
     }  
@@ -98,13 +166,6 @@ function showDelete() {
         const id = deleteInput.value
         if (id) {
             deleteUser(id)
-                .then(response => response.text())
-                .then(message => {
-                    alert(message)
-                })
-                .catch(error => {
-                    alert("An error occurred: " + error.message)
-                })
         } else {
             alert("User ID cannot be empty!")
         }
@@ -155,13 +216,6 @@ function showEdit() {
         const role = roleInput.value
         const data = {username, age, id, role}
         editUser(data)
-        .then(response => response.text())
-            .then(message => {
-                alert(message)
-            })
-            .catch(error => {
-                alert("An error occurred: " + error.message)
-            })
     })
 
     resultContainer.append(text, idInput, usernameInput, ageInput, roleInput, saveBtn)
