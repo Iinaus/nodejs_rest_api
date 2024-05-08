@@ -136,13 +136,24 @@ function showEdit() {
     ageInput.type = "number"
     ageInput.placeholder = "age"
 
+    const roleInput = document.createElement("select")
+    const option1 = document.createElement("option")
+    
+    option1.text = "user"
+    roleInput.add(option1)
+
+    const option2 = document.createElement("option")
+    option2.text = "admin"
+    roleInput.add(option2)
+
     const saveBtn = document.createElement("button")
     saveBtn.innerText = "Save"
     saveBtn.addEventListener("click", () => {
         const id = parseInt(idInput.value)
         const username = usernameInput.value
         const age = parseInt(ageInput.value)
-        const data = {username, age, id}
+        const role = roleInput.value
+        const data = {username, age, id, role}
         editUser(data)
         .then(response => response.text())
             .then(message => {
@@ -153,7 +164,7 @@ function showEdit() {
             })
     })
 
-    resultContainer.append(text, idInput, usernameInput, ageInput, saveBtn)
+    resultContainer.append(text, idInput, usernameInput, ageInput, roleInput, saveBtn)
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

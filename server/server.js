@@ -174,17 +174,17 @@ router.post("/user", async (req, res) => {
 
 router.put("/user", authenticate, adminOnly, (req, res) => {
 
-    const {username, age, id} = req.body
+    const {username, age, id, role} = req.body
 
-    if(!username || !Number.isInteger(age) || !Number.isInteger(id)){
+    if(!username || !Number.isInteger(age) || !Number.isInteger(id) || !role){
         return res.status(400).send("Please check the provided information and fill in the missing fields.")
     }
 
     db.serialize(() => {
 
-        const stmt = db.prepare("UPDATE user SET username = ?, age = ? WHERE id = ?")
+        const stmt = db.prepare("UPDATE user SET username = ?, age = ?, role = ? WHERE id = ?")
         
-        stmt.run(username, age, id, function(err) {
+        stmt.run(username, age, role, id, function(err) {
 
             stmt.finalize()
 
