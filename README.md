@@ -21,6 +21,7 @@ With this exercise we practiced:
 - Handling HTTP requests and responses to interact with the frontend or other services.
 - Working with SQLite database using sqlite3 for data storage and retrieval.
 - Writing API documentation to provide clear guidelines for API usage.
+- Using API from frontend.
 
 ## Getting started
 
@@ -51,6 +52,7 @@ Note that client-side sign-up only allows users with regular user privileges to 
 
 **Testing Admin Tools**
 To test admin functionality, create an admin user. You can do this using a tool like Insomnia or any HTTP client by sending a POST request to http://localhost:3000/api/v1/user/ with the following JSON body:
+
 `{
 	"username": "admin",
 	"role": "admin",
