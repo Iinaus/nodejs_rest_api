@@ -21,6 +21,15 @@ body {
     flex-direction: row;
 }
 
+.delete-button {
+    width: 80px;
+}
+
+.delete-button:hover {
+    background-color: red;
+    color: white;
+}
+
 .close-button {
     width: 100px;
     position: absolute;

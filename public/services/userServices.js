@@ -2,9 +2,9 @@ export async function getAccount() {
     try {
         const response = await fetch("http://localhost:3000/api/v1/user/account")
 
-        const { username, age, role } = await response.json()
+        const { username, age, role, id } = await response.json()
 
-        return { username, age, role }
+        return { username, age, role, id }
 
     } catch (error){
         console.log(error)

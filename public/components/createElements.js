@@ -43,7 +43,11 @@ export function createInput(type, placeholder, id, value) {
 
 export function createTableCell(text, id) {
     const cell = document.createElement('td')
-    cell.innerText = text
+    
+    if(text){
+        cell.innerText = text
+    }  
+    
     if(id){
         cell.id = id
     }    
@@ -52,7 +56,11 @@ export function createTableCell(text, id) {
 
 export function createTableHeaderCell(text, id) {
     const cell = document.createElement('th')
-    cell.innerText = text
+    
+    if(text){
+        cell.innerText = text
+    }
+
     if(id){
         cell.id = id
     }    

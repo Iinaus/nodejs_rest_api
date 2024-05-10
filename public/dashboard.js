@@ -5,6 +5,8 @@ import { getUsers, deleteUser, editUser } from './services/adminServices.js'
 import { checkResultContainer } from './components/resultContainer.js'
 import { createButton, createInput, createParagraph, createTableCell, createTableHeaderCell} from './components/createElements.js'
 
+let global_id
+
 async function showUserInfo() {    
 
     checkResultContainer()
@@ -47,11 +49,11 @@ async function showUserInfo() {
 
     const editBtn = createButton("Edit", handleEdit)
     
-    const table = document.createElement('table')
-    const thead = document.createElement('thead')
-    const tbody = document.createElement('tbody')
-    const trHeaders = document.createElement('tr')
-    const trBody = document.createElement('tr')
+    const table = document.createElement("table")
+    const thead = document.createElement("thead")
+    const tbody = document.createElement("tbody")
+    const trHeaders = document.createElement("tr")
+    const trBody = document.createElement("tr")
 
     const thUsername = createTableHeaderCell("Username")
     const thAge = createTableHeaderCell("Age")
@@ -75,36 +77,52 @@ async function showUsers() {
     checkResultContainer()
 
     try {
-        const data = await getUsers()
-        const tableContainer = document.createElement("div")        
-        const table = document.createElement('table')
-        const thead = document.createElement('thead')
-        const tbody = document.createElement('tbody')
-        const trHeaders = document.createElement('tr')
+        function handleDelete(id) {
+            if (id === global_id) {
+                alert("You can't delete the logged-in user.")
+            } else if (id) {
+                deleteUser(id)
+                const trToRemove = document.getElementById(id);
+                if (trToRemove) {
+                    trToRemove.remove()
+                }
+            } else {
+                alert("User ID cannot be empty!")
+            }           
+        }
+
+        const data = await getUsers()       
+        const table = document.createElement("table")
+        const thead = document.createElement("thead")
+        const tbody = document.createElement("tbody")
+        const trHeaders = document.createElement("tr")
 
         const thId = createTableHeaderCell("Id")
         const thUsername = createTableHeaderCell("Username")
         const thAge = createTableHeaderCell("Age")
-        const thRole = createTableHeaderCell("Role")  
+        const thRole = createTableHeaderCell("Role") 
+        const thDelete = createTableHeaderCell("Delete") 
 
-        trHeaders.append(thId, thUsername, thAge, thRole)
+        trHeaders.append(thId, thUsername, thAge, thRole, thDelete)
 
         data.map(user => {
-            const trBody = document.createElement('tr')
+            const trBody = document.createElement("tr")
+            trBody.id = user.id
             const tdId = createTableCell(user.id)
-            const tdUsername = createTableCell(user.username)
-            const tdAge = createTableCell(user.age)
-            const tdRole = createTableCell(user.role) 
+            const tdUsername = createTableCell(user.username, "username")
+            const tdAge = createTableCell(user.age, "age")
+            const tdRole = createTableCell(user.role, "role")
+            const tdDelete = createTableCell()
+            const deleteBtn = createButton("Delete", () => handleDelete(user.id), "delete-button")
+            tdDelete.append(deleteBtn) 
             
-            trBody.append(tdId, tdUsername, tdAge, tdRole)
+            trBody.append(tdId, tdUsername, tdAge, tdRole, tdDelete)
             tbody.append(trBody)
         })
         
         thead.append(trHeaders)
         table.append(thead, tbody)
-        tableContainer.append(table)
-
-        resultContainer.append(tableContainer)
+        resultContainer.append(table)
 
     } catch (error) {
         console.error("Virhe käyttäjien listauksessa:", error)
@@ -116,8 +134,11 @@ function showDelete() {
     checkResultContainer()
 
     function handleDelete() {
-        const id = deleteInput.value
-        if (id) {
+        const id = parseInt(deleteInput.value)
+        
+        if (id === global_id) {
+            alert("You can't delete the logged-in user.")
+        } else if (id) {
             deleteUser(id)
             deleteInput.value = ""
         } else {
@@ -171,7 +192,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "index.html"
     } 
 
-    const { username, age, role } = await getAccount()
+    const { username, age, role, id } = await getAccount()
+
+    global_id = id   
 
     if (username) {
         document.getElementById("greeting").innerText = `Hello ${username}`
