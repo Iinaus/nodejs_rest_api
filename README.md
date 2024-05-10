@@ -45,6 +45,21 @@ Make sure to install these dependencies before running the project to ensure smo
 2. Install dependencies with command `npm install`
 3. Run the project with command `npm run dev`
 
+#### Additional Notes
+**User Privileges**
+Note that client-side sign-up only allows users with regular user privileges to be created by default.
+
+**Testing Admin Tools**
+To test admin functionality, create an admin user. You can do this using a tool like Insomnia or any HTTP client by sending a POST request to http://localhost:3000/api/v1/user/ with the following JSON body:
+`{
+	"username": "admin",
+	"role": "admin",
+	"age": 30,
+	"password": "admin"
+}`
+
+This will create an admin user with the provided details.
+
 ## API documentation
 
 API provides endpoints to manage users and stores. It supports basic CRUD (Create, Read, Update, Delete) operations. Detailed API documentation is also provided in `openapi.json` file.
@@ -72,6 +87,10 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 - **Request Body:** Expects JSON object with username and password.
 - **Response:** If successful, returns a message indicating successful login and sets a cookie with an access token.
 
+#### POST /user/logout
+- **Description:** Logs the user out by deleting authentication and the generated access token.
+- **Response:** If successful, returns a status code indicating successful logout.
+
 #### POST /user
 - **Description:** Creates a new user with provided data.
 - **Request Body:** Expects a JSON object representing user data (username, password, age, role).
@@ -79,7 +98,7 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 
 #### PUT /user
 - **Description:** Updates information about a specific user identified by the provided id. _(Requires authentication and admin privileges)_
-- **Request Body:** Expects JSON object with username, age, and id.
+- **Request Body:** Expects JSON object with username, age, id and role.
 - **Response:** Returns a message indicating successful user update.
 
 #### PATCH /user
@@ -91,6 +110,10 @@ The base URL in a local development environment, is [http://localhost:3000/api/v
 - **Description:** Deletes a specific user based on their ID. _(Requires authentication and admin privileges)_
 - **Path Parameter:** {id} - ID of the user.
 - **Response:** Returns a message indicating successful user deletion.
+
+#### POST /checkToken
+- **Description:** Checks the validity of the access token.
+- **Response:** If successful, returns a message indicating valid token.
 
 #### POST /store
 - **Description:** Creates a new store with provided data. _(Requires authentication and admin privileges)_

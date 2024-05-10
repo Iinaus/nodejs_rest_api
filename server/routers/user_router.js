@@ -105,8 +105,17 @@ userRouter.post("/user/login", (req, res) => {
     })
 })
 
-userRouter.post("/user/logout", (req, res) => {
-    const accessToken = req.cookies.accessToken
+userRouter.post("/user/logout", async (req, res) => {
+    try {
+        res.clearCookie('accessToken')
+        res.sendStatus(200)
+    } catch {
+        res.clearCookie('accessToken')
+        res.sendStatus(500)
+    }
+
+    // Vaihtoehtoinen tapa, jossa myös JTI poistetaan tietokannasta
+    /*const accessToken = req.cookies.accessToken
 
     if (!accessToken) {
         return res.status(401).send("Unauthorized")
@@ -127,7 +136,7 @@ userRouter.post("/user/logout", (req, res) => {
             res.clearCookie("accessToken")
             return res.send("Logout successful.")
         })
-    })
+    })*/
 })
 
 userRouter.post("/user", async (req, res) => {
@@ -145,11 +154,6 @@ userRouter.post("/user", async (req, res) => {
     stmt.run(username, hashedPassword, age, role, (err) => {
 
         if(err){
-            /* Ei tehdä tuotantoympäristössä, mutta kehitysympäristössä auttaa virheen käsittelyssä
-            return res.status(400).json({
-                error: err
-            })*/
-
             return res.status(409).send("Username taken, try another username.")
         }
 

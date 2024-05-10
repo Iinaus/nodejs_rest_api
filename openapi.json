@@ -72,7 +72,7 @@
         "summary": "Update user identified by the id",
         "description": "This can only be done by admins.",
         "requestBody": {
-          "description": "Expects JSON object with username, age, and id",
+          "description": "Expects JSON object with username, age, id and role",
           "content": {
             "application/json": {
               "schema": {
@@ -87,6 +87,9 @@
           },
           "400": {
             "description": "Check the provided information and fill in the missing fields"
+          },
+          "404": {
+            "description": "User not found"
           },
           "409": {
             "description": "Username taken, try another username"
@@ -176,6 +179,22 @@
         }
       }
     },
+    "/user/logout": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Logs the user out",
+        "responses": {
+          "200": {
+            "description": "Successful operation returns a status code indicating successful logout and deletes the generated access token."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/user/{id}": {
       "get": {
         "tags": [
@@ -232,6 +251,22 @@
           },
           "404": {
             "description": "User not found"
+          }
+        }
+      }
+    },
+    "/checkToken": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Validate access token",
+        "responses": {
+          "200": {
+            "description": "Returns a message indicating valid token."
+          },
+          "401": {
+            "description": "Returns a message indicating invalid token."
           }
         }
       }
@@ -308,6 +343,9 @@
           },
           "400": {
             "description": "Check the provided information and fill in the missing fields"
+          },
+          "404": {
+            "description": "Store not found"
           },
           "409": {
             "description": "Name taken, try another name"
@@ -442,6 +480,10 @@
             "type": "integer",
             "format": "int64",
             "example": 30
+          },
+          "role": {
+            "type": "string",
+            "example": "user"
           }
         }
       },
