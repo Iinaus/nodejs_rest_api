@@ -43,25 +43,43 @@ async function showUserInfo() {
     const { username, age, role } = await getAccount()
 
     const tableContainer = document.createElement("div")
-    const tableHTML = `
-        <table>
-            <thead>
-            <tr>
-                <th>Username</th>
-                <th>Age</th>
-                <th>Role</th>
-            </tr>
-            </thead>
-            <tbody>
-                <tr>
-                <td>${username}</td>
-                <td id="age">${age}</td>
-                <td>${role}</td>
-                </tr>
-            </tbody>
-        </table>
-        `
-    tableContainer.innerHTML = tableHTML
+
+    const table = document.createElement('table')
+    const thead = document.createElement('thead')
+    const tbody = document.createElement('tbody')
+    const trHeaders = document.createElement('tr')
+    const trBody = document.createElement('tr')
+
+    const thUsername = document.createElement('th')
+    thUsername.innerText = "Username"
+    trHeaders.appendChild(thUsername)
+
+    const thAge = document.createElement('th')
+    thAge.innerText = "Age"
+    trHeaders.appendChild(thAge)
+
+    const thRole = document.createElement('th')
+    thRole.innerText = "Role"
+    trHeaders.appendChild(thRole)
+
+    const tdUsername = document.createElement('td')
+    tdUsername.innerText = username
+    trBody.appendChild(tdUsername) 
+
+    const tdAge = document.createElement('td')
+    tdAge.innerText = age
+    tdAge.id = "age"
+    trBody.appendChild(tdAge) 
+
+    const tdRole = document.createElement('td')
+    tdRole.innerText = role
+    trBody.appendChild(tdRole)   
+
+    tbody.appendChild(trBody)
+    thead.appendChild(trHeaders)
+    table.appendChild(thead)
+    table.appendChild(tbody)
+    tableContainer.appendChild(table)
 
     const editBtn = document.createElement("button")
     editBtn.innerText = "Edit"
@@ -71,7 +89,6 @@ async function showUserInfo() {
         const cancelBtn = document.createElement("button")
         cancelBtn.innerText = "Cancel"
         cancelBtn.addEventListener("click", () => {
-            ageCell.innerHTML = null
             ageCell.innerText = currentAge
             resultContainer.removeChild(cancelBtn)
             resultContainer.removeChild(saveBtn)
@@ -95,7 +112,6 @@ async function showUserInfo() {
             const age = parseInt(ageInput.value)
             const data = {age}
             updateAge(data)
-            ageCell.innerHTML = null
             ageCell.innerText = age
             resultContainer.removeChild(cancelBtn)
             resultContainer.removeChild(saveBtn)
@@ -117,30 +133,55 @@ async function showUsers() {
     try {
         const data = await getUsers()
         const tableContainer = document.createElement("div")        
-        const tableHTML = `
-        <table>
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>Username</th>
-                <th>Age</th>
-                <th>Role</th>
-            </tr>
-            </thead>
-            <tbody>
-            ${data.map(user => `
-                <tr>
-                <td>${user.id}</td>
-                <td>${user.username}</td>
-                <td>${user.age}</td>
-                <td>${user.role}</td>
-                </tr>
-            `).join('')}
-            </tbody>
-        </table>
-        `
-        tableContainer.innerHTML = tableHTML
+        const table = document.createElement('table')
+        const thead = document.createElement('thead')
+        const tbody = document.createElement('tbody')
+        const trHeaders = document.createElement('tr')
+
+        const thId = document.createElement('th')
+        thId.innerText = "Id"
+        trHeaders.appendChild(thId)
+
+        const thUsername = document.createElement('th')
+        thUsername.innerText = "Username"
+        trHeaders.appendChild(thUsername)
+
+        const thAge = document.createElement('th')
+        thAge.innerText = "Age"
+        trHeaders.appendChild(thAge)
+
+        const thRole = document.createElement('th')
+        thRole.innerText = "Role"
+        trHeaders.appendChild(thRole)
+
+        data.map(user => {
+            const trBody = document.createElement('tr')
+            const tdId = document.createElement('td')
+            tdId.innerText = user.id
+            trBody.appendChild(tdId) 
+
+            const tdUsername = document.createElement('td')
+            tdUsername.innerText = user.username
+            trBody.appendChild(tdUsername) 
+
+            const tdAge = document.createElement('td')
+            tdAge.innerText = user.age
+            trBody.appendChild(tdAge) 
+
+            const tdRole = document.createElement('td')
+            tdRole.innerText = user.role
+            trBody.appendChild(tdRole)
+
+            tbody.appendChild(trBody)
+        })
+        
+        thead.appendChild(trHeaders)
+        table.appendChild(thead)
+        table.appendChild(tbody)
+        tableContainer.appendChild(table)
+
         resultContainer.append(tableContainer)
+
     } catch (error) {
         console.error("Virhe käyttäjien listauksessa:", error)
     }  
@@ -166,6 +207,7 @@ function showDelete() {
         const id = deleteInput.value
         if (id) {
             deleteUser(id)
+            deleteInput.value = ""
         } else {
             alert("User ID cannot be empty!")
         }
@@ -230,7 +272,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { username, age, role } = await getAccount()
 
     if (username) {
-        document.getElementById("greeting").innerHTML = `Hello ${username}`
+        document.getElementById("greeting").innerText = `Hello ${username}`
     }
 
     document.getElementById("logout").addEventListener("click", () => {
