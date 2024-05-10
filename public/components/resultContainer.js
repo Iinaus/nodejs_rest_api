@@ -1,29 +1,37 @@
-export function createResultContainer() {  
-    //resultContainer = document.createElement("div")
-    //resultContainer.id = "resultContainer"
-    //resultContainer.className = "container"
+import { createButton } from './createElements.js'
 
-    const resultContainer = document.getElementById("resultContainer")
+let showResultVisible = false
+let resultContainer = null
 
-    const closeBtn = document.createElement("button")
-    closeBtn.innerText = "Close"
-    closeBtn.className = "close-button"
+function createResultContainer() {  
+    resultContainer = document.createElement("div")
+    resultContainer.id = "resultContainer"
+    resultContainer.className = "container"
+
+    const closeBtn = createButton("Close", null, "close-button")
     closeBtn.addEventListener("click", () => {
         hideResultContainer()
     })
 
     resultContainer.append(closeBtn)
     resultContainer.style.display = "block"
-    document.body.appendChild(resultContainer)  
-    ///showResultVisible = true
+    document.body.append(resultContainer)  
+    showResultVisible = true
 }
 
-export function hideResultContainer() {
-    const resultContainer = document.getElementById("resultContainer")
-
+function hideResultContainer() {
     if (resultContainer) {
         resultContainer.remove()
         resultContainer = null
-        //showResultVisible = false
+        showResultVisible = false
+    }
+}
+
+export function checkResultContainer(){
+    if (resultContainer) {  
+        hideResultContainer()
+        createResultContainer()
+    } else {
+        createResultContainer()
     }
 }

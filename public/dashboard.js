@@ -2,133 +2,77 @@ import { logout } from './utils/logout.js'
 import { checkToken } from './utils/checkToken.js'
 import { getAccount, updateAge } from './services/userServices.js'
 import { getUsers, deleteUser, editUser } from './services/adminServices.js'
+import { checkResultContainer } from './components/resultContainer.js'
+import { createButton, createInput, createParagraph, createTableCell, createTableHeaderCell} from './components/createElements.js'
 
-let showResultVisible = false
-let resultContainer = null
+async function showUserInfo() {    
 
-function createResultContainer() {  
-    resultContainer = document.createElement("div")
-    resultContainer.id = "resultContainer"
-    resultContainer.className = "container"
+    checkResultContainer()
 
-    const closeBtn = document.createElement("button")
-    closeBtn.innerText = "Close"
-    closeBtn.className = "close-button"
-    closeBtn.addEventListener("click", () => {
-        hideResultContainer()
-    })
-
-    resultContainer.append(closeBtn)
-    resultContainer.style.display = "block"
-    document.body.appendChild(resultContainer)  
-    showResultVisible = true
-}
-
-function hideResultContainer() {
-    if (resultContainer) {
-        resultContainer.remove()
-        resultContainer = null
-        showResultVisible = false
-    }
-}
-
-async function showUserInfo() {
-    if (resultContainer) {  
-        hideResultContainer()
-        createResultContainer()
-    } else {
-        createResultContainer()
-    }
-
-    const { username, age, role } = await getAccount()
-
-    const tableContainer = document.createElement("div")
-
-    const table = document.createElement('table')
-    const thead = document.createElement('thead')
-    const tbody = document.createElement('tbody')
-    const trHeaders = document.createElement('tr')
-    const trBody = document.createElement('tr')
-
-    const thUsername = document.createElement('th')
-    thUsername.innerText = "Username"
-    trHeaders.appendChild(thUsername)
-
-    const thAge = document.createElement('th')
-    thAge.innerText = "Age"
-    trHeaders.appendChild(thAge)
-
-    const thRole = document.createElement('th')
-    thRole.innerText = "Role"
-    trHeaders.appendChild(thRole)
-
-    const tdUsername = document.createElement('td')
-    tdUsername.innerText = username
-    trBody.appendChild(tdUsername) 
-
-    const tdAge = document.createElement('td')
-    tdAge.innerText = age
-    tdAge.id = "age"
-    trBody.appendChild(tdAge) 
-
-    const tdRole = document.createElement('td')
-    tdRole.innerText = role
-    trBody.appendChild(tdRole)   
-
-    tbody.appendChild(trBody)
-    thead.appendChild(trHeaders)
-    table.appendChild(thead)
-    table.appendChild(tbody)
-    tableContainer.appendChild(table)
-
-    const editBtn = document.createElement("button")
-    editBtn.innerText = "Edit"
-    editBtn.addEventListener("click", () => {  
-        editBtn.style.display = "none"
-        
-        const cancelBtn = document.createElement("button")
-        cancelBtn.innerText = "Cancel"
-        cancelBtn.addEventListener("click", () => {
+    function handleEdit() {
+        function handleCancel() {
             ageCell.innerText = currentAge
             resultContainer.removeChild(cancelBtn)
             resultContainer.removeChild(saveBtn)
+            editBtn.style.display = "block"
             resultContainer.append(editBtn)
-        })
+        }
 
-        const ageCell = document.getElementById("age")
-        const currentAge = ageCell.innerText
-        const ageInput = document.createElement("input")
-
-        ageInput.type = "number"
-        ageInput.id = "ageInput"
-        ageInput.value = currentAge
-        ageCell.innerText = ""
-
-        ageCell.appendChild(ageInput)       
-
-        const saveBtn = document.createElement("button")
-        saveBtn.innerText = "Save"
-        saveBtn.addEventListener("click", () => {
+        function handleSave() {
             const age = parseInt(ageInput.value)
             const data = {age}
             updateAge(data)
             ageCell.innerText = age
             resultContainer.removeChild(cancelBtn)
             resultContainer.removeChild(saveBtn)
+            editBtn.style.display = "block"
             resultContainer.append(editBtn)
-        })
+        }
+        
+        editBtn.style.display = "none"
+
+        const cancelBtn = createButton("Cancel", handleCancel)
+        const saveBtn = createButton("Save", handleSave)
+
+        const ageCell = document.getElementById("age")
+        const currentAge = ageCell.innerText
+        const ageInput = createInput("number", null, "ageInput" , currentAge)
+        ageCell.innerText = ""
+
+        ageCell.append(ageInput)  
         resultContainer.append(cancelBtn, saveBtn)
-    })
-    resultContainer.append(tableContainer, editBtn)
+    }
+
+    const { username, age, role } = await getAccount()
+
+    const editBtn = createButton("Edit", handleEdit)
+    
+    const table = document.createElement('table')
+    const thead = document.createElement('thead')
+    const tbody = document.createElement('tbody')
+    const trHeaders = document.createElement('tr')
+    const trBody = document.createElement('tr')
+
+    const thUsername = createTableHeaderCell("Username")
+    const thAge = createTableHeaderCell("Age")
+    const thRole = createTableHeaderCell("Role")    
+
+    const tdUsername = createTableCell(username)
+    const tdAge = createTableCell(age, "age")
+    const tdRole = createTableCell(role)    
+
+    trHeaders.append(thUsername, thAge, thRole)
+    trBody.append(tdUsername, tdAge, tdRole)
+    tbody.append(trBody)
+    thead.append(trHeaders)
+    table.append(thead, tbody)    
+
+    resultContainer.append(table, editBtn)
 }
 
 async function showUsers() {
-    if (resultContainer) {  
-        hideResultContainer()
-        createResultContainer()
-    } else {
-        createResultContainer()
-    }
+    
+    checkResultContainer()
 
     try {
         const data = await getUsers()
@@ -138,47 +82,27 @@ async function showUsers() {
         const tbody = document.createElement('tbody')
         const trHeaders = document.createElement('tr')
 
-        const thId = document.createElement('th')
-        thId.innerText = "Id"
-        trHeaders.appendChild(thId)
+        const thId = createTableHeaderCell("Id")
+        const thUsername = createTableHeaderCell("Username")
+        const thAge = createTableHeaderCell("Age")
+        const thRole = createTableHeaderCell("Role")  
 
-        const thUsername = document.createElement('th')
-        thUsername.innerText = "Username"
-        trHeaders.appendChild(thUsername)
-
-        const thAge = document.createElement('th')
-        thAge.innerText = "Age"
-        trHeaders.appendChild(thAge)
-
-        const thRole = document.createElement('th')
-        thRole.innerText = "Role"
-        trHeaders.appendChild(thRole)
+        trHeaders.append(thId, thUsername, thAge, thRole)
 
         data.map(user => {
             const trBody = document.createElement('tr')
-            const tdId = document.createElement('td')
-            tdId.innerText = user.id
-            trBody.appendChild(tdId) 
-
-            const tdUsername = document.createElement('td')
-            tdUsername.innerText = user.username
-            trBody.appendChild(tdUsername) 
-
-            const tdAge = document.createElement('td')
-            tdAge.innerText = user.age
-            trBody.appendChild(tdAge) 
-
-            const tdRole = document.createElement('td')
-            tdRole.innerText = user.role
-            trBody.appendChild(tdRole)
-
-            tbody.appendChild(trBody)
+            const tdId = createTableCell(user.id)
+            const tdUsername = createTableCell(user.username)
+            const tdAge = createTableCell(user.age)
+            const tdRole = createTableCell(user.role) 
+            
+            trBody.append(tdId, tdUsername, tdAge, tdRole)
+            tbody.append(trBody)
         })
         
-        thead.appendChild(trHeaders)
-        table.appendChild(thead)
-        table.appendChild(tbody)
-        tableContainer.appendChild(table)
+        thead.append(trHeaders)
+        table.append(thead, tbody)
+        tableContainer.append(table)
 
         resultContainer.append(tableContainer)
 
@@ -188,22 +112,10 @@ async function showUsers() {
 }
 
 function showDelete() {
-    if (resultContainer) {  
-        hideResultContainer()
-        createResultContainer()
-    } else {
-        createResultContainer()
-    }
+    
+    checkResultContainer()
 
-    const text = document.createElement("p")
-    text.innerText = "Write the ID of the user to be deleted."
-
-    const deleteInput = document.createElement("input")
-    deleteInput.type = "number"
-
-    const deleteBtn = document.createElement("button")
-    deleteBtn.innerText = "Delete"
-    deleteBtn.addEventListener("click", () => {
+    function handleDelete() {
         const id = deleteInput.value
         if (id) {
             deleteUser(id)
@@ -211,54 +123,44 @@ function showDelete() {
         } else {
             alert("User ID cannot be empty!")
         }
-    })
+    }
+
+    const text = createParagraph("Write the ID of the user to be deleted.")
+    const deleteInput = createInput("number", "id")
+    const deleteBtn = createButton("Delete", handleDelete)
 
     resultContainer.append(text, deleteInput, deleteBtn)
 }
 
 function showEdit() {
-    if (resultContainer) {  
-        hideResultContainer()
-        createResultContainer()
-    } else {
-        createResultContainer()
-    }
-
-    const text = document.createElement("p")
-    text.innerText = "Write the ID of the user to be edited and add new username and age."
-
-    const idInput = document.createElement("input")
-    idInput.type = "number"
-    idInput.placeholder = "id"
-
-    const usernameInput = document.createElement("input")
-    usernameInput.type = "text"
-    usernameInput.placeholder = "username"
-
-    const ageInput = document.createElement("input")
-    ageInput.type = "number"
-    ageInput.placeholder = "age"
-
-    const roleInput = document.createElement("select")
-    const option1 = document.createElement("option")
     
-    option1.text = "user"
-    roleInput.add(option1)
+    checkResultContainer()
 
-    const option2 = document.createElement("option")
-    option2.text = "admin"
-    roleInput.add(option2)
-
-    const saveBtn = document.createElement("button")
-    saveBtn.innerText = "Save"
-    saveBtn.addEventListener("click", () => {
+    function handleSave() {
         const id = parseInt(idInput.value)
         const username = usernameInput.value
         const age = parseInt(ageInput.value)
         const role = roleInput.value
         const data = {username, age, id, role}
         editUser(data)
-    })
+        idInput.value = ""
+        usernameInput.value = ""
+        ageInput.value = ""
+    }
+
+    const text = createParagraph("Write the ID of the user to be edited and add new username and age.")
+    const saveBtn = createButton("Save", handleSave)
+    const idInput = createInput("number", "id")
+    const usernameInput = createInput("text", "username")
+    const ageInput = createInput("number", "age")
+
+    const roleInput = document.createElement("select")
+    const option1 = document.createElement("option")
+    option1.text = "user"
+    roleInput.add(option1)
+    const option2 = document.createElement("option")
+    option2.text = "admin"
+    roleInput.add(option2)    
 
     resultContainer.append(text, idInput, usernameInput, ageInput, roleInput, saveBtn)
 }
